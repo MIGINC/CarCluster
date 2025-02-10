@@ -105,8 +105,7 @@ void VWPQ46Cluster::updateWithGame(GameState& game) {
     // scheduler, but for now this seems to work.
 
     sendImmobilizer();
-    sendIndicators(game.leftTurningIndicator, game.rightTurningIndicator, game.turningIndicatorsBlinking, game.mainLights, game.highBeam, game.frontFogLight, game.rearFogLight, game.batteryLight, false, game.doorOpen);
-    sendBacklightBrightness(game.backlightBrightness);
+    sendIndicators(game.leftTurningIndicator, game.rightTurningIndicator, game.turningIndicatorsBlinking, game.mainLights, game.highBeam, game.frontFogLight, game.rearFogLight, game.batteryLight, false, game.doorOpen, game.backlightBrightness);
     sendDieselEngine();
     sendRPM(mapRPM(game));
     sendSpeed(mapSpeed(game), false, game.offroadLight, game.absLight);
@@ -172,13 +171,6 @@ void VWPQ46Cluster::sendIndicators(boolean leftBlinker, boolean rightBlinker, bo
   lightsBuffer[2] = temp_turning_lights;
   //CanSend(0x531, speed, 0x00, temp_turning_lights, 0x00, 0x00, 0x00, 0x00, 0x00);
   CAN.sendMsgBuf(LIGHTS_ID, 0, 8, lightsBuffer);
-}
-
-void VWPQ46Cluster::sendBacklightBrightness(uint8_t brightness) {
-  dimmungBuf[0] = brightness & 0x7F;
-  dimmungBuf[1] = brightness & 0x7F;
-  CAN.sendMsgBuf(DIMMUNG_ID, 0, 3, dimmungBuf);
-  // Screen brightness, switch brightness, light sensor
 }
 
 void VWPQ46Cluster::sendDieselEngine() {
