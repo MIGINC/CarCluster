@@ -84,11 +84,9 @@ For easier wiring I have created a simple breakout PCB that you can use. Simply 
 - [Wiring for BMW E46 cluster](Misc/README_WIRING_BMW_E46.md)
 
 ### Install the arduino sketch to the ESP32
-Download the project and open it using Arduino IDE (I am using version 2.3.3).
+Download the project and open it using Arduino IDE (I am using version 2.3.6).
 
-If you haven't yet installed ESP32 support for Arduino IDE then do so now. Go to Boards Manager and search for esp32 by Espressif Systems. I am using version 3.0.2.
-
-**Please use arduino ESP32 core versions lower than 3.1.x until further notice as there is an issue with one of the included libraries that prevents the ESP from booting up with wifi enabled. Just install the latest 3.0.x version. Alternatively you can use it with wifi disabled, which should also work.**
+If you haven't yet installed ESP32 support for Arduino IDE then do so now. Go to Boards Manager and search for esp32 by Espressif Systems. I am using version 3.3.4.
 
 There is no need to install any additional libraries. All needed libraries are bundled with this project when you download it.
 

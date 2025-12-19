@@ -114,7 +114,7 @@
 // Other configurable variables that usually don't need changing
 
 // How often is the web dashboard updated
-#define WIFI_WEB_DASHBOARD_UPDATE_INTERVAL 2000
+#define WIFI_WEB_DASHBOARD_UPDATE_INTERVAL 3000
 
 // Name of the access point created
 #define WIFI_CONFIG_PORTAL_ACCESS_POINT_NAME "CarCluster"
@@ -216,15 +216,30 @@ SimhubGame simhubGame(game);
   // Wifi/web portal variables
   #include "src/Other/WifiFunctions.h"
   #include "src/Other/WebDashboard.h"
+  #include "src/Other/mongoose/mongoose.h"
+  #include "src/Other/mongoose/mongoose_glue.h"
 
   #include "src/Games/ForzaHorizonGame.h"
   #include "src/Games/BeamNGGame.h"
 
   WifiFunctions wifiFunctions;
-  WebDashboard webDashboard(game, WIFI_WEB_DASHBOARD_PORT, WIFI_WEB_DASHBOARD_UPDATE_INTERVAL);
+  WebDashboard webDashboard(game, WIFI_WEB_DASHBOARD_UPDATE_INTERVAL);
 
   ForzaHorizonGame forzaHorizonGame(game, WIFI_FORZA_UDP_PORT);
   BeamNGGame beamNGGame(game, WIFI_BEAM_UDP_PORT);
+
+  void webDashboardGetState(struct state *data) {
+    webDashboard.getState(data);
+  }
+  void webDashBoardSetState(struct state *data) {
+    webDashboard.setState(data);
+  }
+  bool webDashboardCheckSteeringButtonPressed(void) {
+    return false;
+  }
+  void webDashboardSetSteeringButtonPressed(struct mg_str params) {
+    webDashboard.steeringWheelAction(params);
+  }
 #endif 
 
 // Serial JSON parsing
@@ -238,9 +253,15 @@ void setup() {
   //Begin with Serial Connection
   Serial.begin(SERIAL_BAUD_RATE);
 
+  delay(1000);
+  Serial.println("Starting CarCluster...");
+
   #if WIFI_ENABLED == 1
     wifiFunctions.begin(WIFI_CONFIG_PORTAL_ACCESS_POINT_NAME, WIFI_CONFIG_PORTAL_ACCESS_POINT_PASSWORD, WIFI_CONFIG_PORTAL_TIMEOUT);
-    webDashboard.begin();
+    mongoose_init();
+    mg_log_set(MG_LL_ERROR);
+    mongoose_set_http_handlers("state", webDashboardGetState, webDashBoardSetState);
+    mongoose_set_http_handlers("steering_button_pressed", webDashboardCheckSteeringButtonPressed, webDashboardSetSteeringButtonPressed);
     forzaHorizonGame.begin();
     beamNGGame.begin();
   #endif
@@ -297,6 +318,7 @@ void loop() {
   // Update the web dashboard
   #if WIFI_ENABLED == 1
     webDashboard.update();
+    mongoose_poll();
   #endif
 }
 
